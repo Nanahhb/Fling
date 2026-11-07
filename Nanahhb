@@ -1,0 +1,91 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local speed = 100
+local spinning = false
+local antiFling = true
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "NanahhbFling"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(240, 190)
+frame.Position = UDim2.new(0.5, -120, 0.5, -95)
+frame.BackgroundColor3 = Color3.fromRGB(255, 220, 235)
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 14)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "Nanahhb Fling"
+title.TextColor3 = Color3.fromRGB(180, 65, 120)
+title.TextSize = 20
+title.Font = Enum.Font.GothamBold
+title.Parent = frame
+
+local function makeButton(name, text, y)
+    local b = Instance.new("TextButton")
+    b.Name = name
+    b.Size = UDim2.new(0.85, 0, 0, 35)
+    b.Position = UDim2.new(0.075, 0, 0, y)
+    b.BackgroundColor3 = Color3.fromRGB(255, 177, 204)
+    b.Text = text
+    b.TextColor3 = Color3.fromRGB(120, 50, 85)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 14
+    b.Parent = frame
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9)
+    return b
+end
+
+local spinButton = makeButton("Spin", "Fling: OFF", 48)
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0.85, 0, 0, 32)
+speedBox.Position = UDim2.new(0.075, 0, 0, 90)
+speedBox.BackgroundColor3 = Color3.fromRGB(255, 248, 252)
+speedBox.Text = "100"
+speedBox.PlaceholderText = "Rotation speed"
+speedBox.TextColor3 = Color3.fromRGB(120, 50, 85)
+speedBox.Font = Enum.Font.GothamBold
+speedBox.TextSize = 14
+speedBox.Parent = frame
+Instance.new("UICorner", speedBox).CornerRadius = UDim.new(0, 8)
+
+local antiButton = makeButton("AntiFling", "Anti-Fling: ON", 130)
+
+spinButton.MouseButton1Click:Connect(function()
+    spinning = not spinning
+    spinButton.Text = spinning and "Fling: ON" or "Fling: OFF"
+end)
+
+speedBox.FocusLost:Connect(function()
+    local n = tonumber(speedBox.Text)
+    if n then
+        speed = math.clamp(n, 0, 500)
+    else
+        speedBox.Text = tostring(speed)
+    end
+end)
+
+antiButton.MouseButton1Click:Connect(function()
+    antiFling = not antiFling
+    antiButton.Text = antiFling and "Anti-Fling: ON" or "Anti-Fling: OFF"
+end)
+
+local angle = 0
+
+RunService.Heartbeat:Connect(function(dt)
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    if spinning then
+        angle += math.rad(speed) * dt
+        root.CFrame = CFrame.new(root.Position) * CFrame.Angles(0, angle, 0)
+    end
+end)
